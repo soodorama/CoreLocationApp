@@ -15,6 +15,9 @@ class DescVC: UIViewController {
     @IBOutlet weak var videoLabel: UILabel!
     @IBOutlet weak var youtubeWebView: WKWebView!
     
+    weak var delegate: DescVCDelegate?
+    var data: Bool = false
+    
     var exercises: [[String:String]] = [
         ["title": "10 Push Ups", "code": "hLbjdCJ5-2w"],
         ["title": "50 Jumping Jacks", "code": "sYxABbY6Qv4"],
@@ -27,7 +30,7 @@ class DescVC: UIViewController {
         ["title": "20 Lunge Walks", "code": "4ieLCqyA9Ig"],
         ["title": "10 Standups", "code": "eLnSyVyuNn0"],
         ["title": "20 Straight Leg Levers", "code": "7CvLXNVAgV4"],
-        ["title": "Mountain Climbers", "code": "47I93-cx3Qo"],
+        ["title": "20 Mountain Climbers", "code": "47I93-cx3Qo"],
         ["title": "20 Froggers", "code": "nddYuZP-kSo"],
         ["title": "10 Pikes", "code": "AV3lyLHWf2E"],
         ["title": "10 Sprawls", "code": "BnvnlqahscU"],
@@ -70,8 +73,8 @@ class DescVC: UIViewController {
                 count += 1
             }
             else {
-   
-                dismiss(animated: true, completion: nil)
+                data = true
+                delegate?.removeMarker(by: self, with: data)
             }
         }
         
@@ -87,3 +90,6 @@ class DescVC: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 }
+
+
+
