@@ -14,7 +14,7 @@ protocol DescVCDelegate: class {
     func removeMarker(by controller: DescVC, with data: Bool)
 }
 
-class MainVC: UIViewController {
+class MainVC: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var coordLabel: UILabel!
     @IBOutlet weak var mapView: MKMapView!
@@ -23,35 +23,35 @@ class MainVC: UIViewController {
     let locationManager = CLLocationManager()
     var startLoc: CLLocationCoordinate2D?
     
-    var chosenLat: Double = 37.374291
-    var chosenLong: Double = 37.374291
+    var chosenLat: Double = 37.375468702974459
+    var chosenLong: Double = -121.91034402576908
     
     var hardcoded_stop = false
     
     let marker = Marker(title: "Coding Dojo",
                         subtitle: "1920 Zanker Road, San Jose, CA",
                         coordinate: CLLocationCoordinate2D(latitude: 37.375291, longitude: -121.910585))
-    
+
     let marker2 = Marker(title: "Cross Fit 101",
                          subtitle: "279 E Brokaw Rd, San Jose, CA",
                          coordinate: CLLocationCoordinate2D(latitude: 37.377631, longitude: -121.913670))
-    
+
     let marker3 = Marker(title: "24 Hour Fitness",
                          subtitle: "1610 Crane St, San Jose, CA",
                          coordinate: CLLocationCoordinate2D(latitude: 37.371369, longitude: -121.910923))
     
     var geofenceRegionCenter: CLLocationCoordinate2D?
-    
     var geofenceRegion: CLCircularRegion?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        mapView.delegate = self
         
         // Your coordinates go here (lat, lon)
         geofenceRegionCenter = CLLocationCoordinate2D(
-            latitude: 37.375291,
-            longitude: -121.910585
+            latitude: chosenLat,
+            longitude: chosenLong
         )
         
         geofenceRegion = CLCircularRegion(
@@ -88,6 +88,17 @@ class MainVC: UIViewController {
         descVC.delegate = self
     }
     
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let polylineRenderer = MKPolylineRenderer(overlay: overlay)
+        polylineRenderer.strokeColor = UIColor.blue
+        polylineRenderer.fillColor = UIColor.red
+        polylineRenderer.lineWidth = 2
+        return polylineRenderer
+        
+        
+    }
+
+    
     override func viewWillAppear(_ animated: Bool) {
         if hardcoded_stop {
             mapView.removeAnnotation(marker)
@@ -110,9 +121,26 @@ class MainVC: UIViewController {
             let alert = UIAlertController(title: "Let's Go", message: "Get active at another FitQuik location", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
+            mapView.delegate = self
+            
+            let request = MKDirectionsRequest()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (locationManager.location?.coordinate.latitude)!, longitude: (locationManager.location?.coordinate.longitude)!), addressDictionary: nil))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 37.371369, longitude: -121.910923), addressDictionary: nil))
+            request.requestsAlternateRoutes = false
+            request.transportType = .walking
+            
+            let directions = MKDirections(request: request)
+            
+            directions.calculate { [unowned self] response, error in
+                guard let unwrappedResponse = response else { return }
+                
+                for route in unwrappedResponse.routes {
+                    self.mapView.add(route.polyline)
+                    self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                }
+            }
         }
     }
-    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // Don't want to show a custom image if the annotation is the user's location.
@@ -126,12 +154,11 @@ class MainVC: UIViewController {
         return annotationView
     }
     
-    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = UIColor.blue
-        return renderer
-    }
-    
+//    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+//        let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
+//        renderer.strokeColor = UIColor.blue
+//        return renderer
+//    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
