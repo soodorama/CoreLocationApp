@@ -13,8 +13,8 @@ import MapKit
 class MainVC: UIViewController {
     
     @IBOutlet weak var coordLabel: UILabel!
-    
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var quikFitButton: UIButton!
     
     let locationManager = CLLocationManager()
     var startLoc: CLLocationCoordinate2D?
@@ -32,10 +32,13 @@ class MainVC: UIViewController {
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
         
+        quikFitButton.layer.cornerRadius = 10
+        quikFitButton.clipsToBounds = true
+        
         
 //        print("\(startLoc?.latitude)" + " - " + "\(startLoc?.longitude)")
         
-        view.backgroundColor = UIColor.gray
+//        view.backgroundColor = UIColor.gray
         
     }
     override func viewWillDisappear(_ animated: Bool) {
@@ -97,7 +100,7 @@ extension MainVC: CLLocationManagerDelegate {
         mapView.setRegion(region, animated: true)
         self.mapView.showsUserLocation = true
 //        print("locations = \(locValue.latitude) \(locValue.longitude)")
-        coordLabel.text = "locations = \(locValue.latitude) \(locValue.longitude)"
+//        coordLabel.text = "locations = \(locValue.latitude) \(locValue.longitude)"
         if startLoc?.latitude == nil {
 //            print("hi")
             startLoc?.latitude = locValue.latitude
