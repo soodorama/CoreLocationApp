@@ -22,13 +22,18 @@ class MainVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        let marker = GMSMarker()
+//        let markerView = UIImageView(image: "map_pin")
+//        markerView.tintColor = UIColor.red
+//        marker.iconView = markerView
+        
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
         
         
-        print("\(startLoc?.latitude)" + " - " + "\(startLoc?.longitude)")
+//        print("\(startLoc?.latitude)" + " - " + "\(startLoc?.longitude)")
         
         view.backgroundColor = UIColor.gray
         
@@ -36,6 +41,42 @@ class MainVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         locationManager.stopUpdatingLocation()
     }
+    
+    
+    @IBAction func getFitPressed(_ sender: UIButton) {
+        performSegue(withIdentifier: "ARSegue", sender: nil)
+    }
+    
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // Don't want to show a custom image if the annotation is the user's location.
+        guard !(annotation is MKUserLocation) else {
+            return nil
+        }
+        
+        // Better to make this class property
+        let annotationIdentifier = "AnnotationIdentifier"
+        
+        var annotationView: MKAnnotationView?
+        if let dequeuedAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationIdentifier) {
+            annotationView = dequeuedAnnotationView
+            annotationView?.annotation = annotation
+        }
+        else {
+            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationIdentifier)
+            annotationView?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+        }
+        
+        if let annotationView = annotationView {
+            // Configure your annotation view here
+            annotationView.canShowCallout = true
+            annotationView.image = UIImage(named: "map_pin")
+        }
+        
+        return annotationView
+    }
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -50,7 +91,7 @@ class MainVC: UIViewController {
 extension MainVC: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.001, 0.001)
+        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
         let userLocation: CLLocationCoordinate2D = CLLocationCoordinate2DMake(locValue.latitude, locValue.longitude)
         let region: MKCoordinateRegion = MKCoordinateRegionMake(userLocation, span)
         mapView.setRegion(region, animated: true)
