@@ -36,8 +36,6 @@ class DescVC: UIViewController {
         ["title": "10 Standup Jumps", "code": "PY5l4wswlig"],
     ]
     
-//    var all_exercises = [[String:String]]()
-    
     
     var rand_num: Int?
     
@@ -72,8 +70,7 @@ class DescVC: UIViewController {
                 count += 1
             }
             else {
-    //            count = 0
-    //            exercises = all_exercises
+   
                 dismiss(animated: true, completion: nil)
             }
         }

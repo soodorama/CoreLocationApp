@@ -22,10 +22,23 @@ class MainVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        let marker = GMSMarker()
-//        let markerView = UIImageView(image: "map_pin")
-//        markerView.tintColor = UIColor.red
-//        marker.iconView = markerView
+        
+        // Your coordinates go here (lat, lon)
+        let geofenceRegionCenter = CLLocationCoordinate2D(
+            latitude: 37.376,
+            longitude: -121.911
+        )
+        
+        let geofenceRegion = CLCircularRegion(
+            center: geofenceRegionCenter,
+            radius: 20,
+            identifier: "UniqueIdentifier"
+        )
+        
+        geofenceRegion.notifyOnEntry = true
+        geofenceRegion.notifyOnExit = true
+        
+        self.locationManager.startMonitoring(for: geofenceRegion)
         
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
